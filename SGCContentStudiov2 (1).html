@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Content Studio v8 · Soul Growth Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500;1,600&family=Jost:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --parchment:#F5F0E8;--parchment-dk:#EDE6D6;--ink:#2C2416;--ink-mid:#3D3020;
+  --ink-soft:#8C7E6A;--ink-faint:#BFB49E;--gold:#C9A84C;--gold-light:#E8C870;
+  --gold-pale:#F5E8B8;--gold-deep:#A07830;--sage:#4a7a60;--forest:#2D4A3E;
+  --navy:#2A3550;--cloak:#1E2A3E;--border:rgba(139,104,64,0.18);
+  --border-gold:rgba(201,168,76,0.35);--shadow:rgba(44,36,22,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:linear-gradient(160deg,#F5F0E8 0%,#EDE6D6 60%,#E5DCC8 100%);color:var(--ink);font-family:'Jost',sans-serif;font-weight:300;line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+@keyframes shimmer{0%,100%{opacity:0.4;}50%{opacity:1;}}
+@keyframes flicker{0%,100%{transform:scaleX(1) scaleY(1);}25%{transform:scaleX(.93) scaleY(1.06);}50%{transform:scaleX(1.05) scaleY(.95);}75%{transform:scaleX(.97) scaleY(1.04);}}
+@keyframes glowPulse{0%,100%{opacity:.5;}50%{opacity:1;}}
+@keyframes spin{to{transform:rotate(360deg);}}
+.flame-body{transform-origin:center bottom;animation:flicker 2.1s ease-in-out infinite;}
+.lantern-glow{animation:glowPulse 2.4s ease-in-out infinite;}
+.site-header{background:linear-gradient(180deg,var(--parchment-dk) 0%,var(--parchment) 100%);border-bottom:1px solid var(--border-gold);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px var(--shadow);}
+.header-left{display:flex;align-items:center;gap:16px;}
+.header-lantern{width:52px;flex-shrink:0;}
+.header-eyebrow{font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;}
+.header-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;font-style:italic;color:var(--ink);line-height:1.1;}
+.header-name em{font-style:normal;color:var(--gold-deep);}
+.header-badge{padding:5px 14px;background:var(--gold-pale);border:1px solid var(--border-gold);border-radius:999px;font-size:8.5px;font-weight:500;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);}
+main{max-width:960px;margin:0 auto;padding:40px 28px 80px;position:relative;z-index:1;}
+.step-section{background:white;border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px;box-shadow:0 2px 16px var(--shadow);animation:fadeUp 0.5s ease forwards;}
+.step-label{font-size:8.5px;letter-spacing:0.28em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.step-label::after{content:'';flex:1;height:1px;background:var(--border);}
+.step-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:500;color:var(--ink);margin-bottom:16px;}
+.step-subtitle{font-size:12px;color:var(--ink-soft);margin-top:-10px;margin-bottom:16px;font-style:italic;font-family:'Cormorant Garamond',serif;}
+.mode-tabs{display:flex;gap:0;background:var(--parchment-dk);border:1px solid var(--border-gold);border-radius:12px;padding:4px;margin-bottom:28px;flex-wrap:wrap;}
+.mode-tab{padding:10px 18px;border-radius:9px;border:none;font-family:'Jost',sans-serif;font-size:9px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;transition:all 0.25s ease;background:transparent;color:var(--ink-soft);white-space:nowrap;}
+.mode-tab.active{background:var(--navy);color:var(--gold-light);box-shadow:0 2px 10px rgba(42,53,80,0.25);}
+.type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:8px;}
+.type-btn{padding:14px 12px;background:var(--parchment);border:1.5px solid var(--border);border-radius:10px;font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--ink-mid);cursor:pointer;transition:all 0.2s ease;text-align:center;line-height:1.3;}
+.type-btn:hover{border-color:var(--gold);background:var(--gold-pale);}
+.type-btn.selected{border-color:var(--gold);background:linear-gradient(135deg,var(--gold-pale),#EDD878);color:var(--ink);box-shadow:0 2px 10px rgba(201,168,76,0.25);}
+.type-btn .type-icon{display:block;font-size:20px;margin-bottom:5px;}
+.type-btn .type-name{display:block;font-size:11px;font-weight:500;font-style:normal;font-family:'Jost',sans-serif;letter-spacing:0.07em;}
+.selector-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:0;}
+.selector-group label{font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;margin-bottom:8px;display:block;}
+.selector-select{width:100%;padding:12px 36px 12px 16px;background:var(--parchment);border:1.5px solid var(--border);border-radius:10px;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--ink-mid);outline:none;cursor:pointer;transition:border-color 0.2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238C7E6A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;}
+.selector-select:focus{border-color:var(--gold);}
+.series-toggle{display:flex;gap:10px;flex-wrap:wrap;}
+.series-btn{padding:10px 20px;background:var(--parchment);border:1.5px solid var(--border);border-radius:999px;font-family:'Jost',sans-serif;font-size:9.5px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink-soft);cursor:pointer;transition:all 0.2s ease;}
+.series-btn:hover{border-color:var(--gold);color:var(--gold-deep);}
+.series-btn.selected{background:var(--navy);border-color:var(--navy);color:var(--gold-light);}
+.brain-dump{width:100%;min-height:160px;padding:18px 20px;background:var(--parchment);border:1.5px solid var(--border);border-radius:12px;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--ink-mid);line-height:1.75;resize:vertical;outline:none;transition:border-color 0.2s;}
+.brain-dump:focus{border-color:var(--gold);}
+.brain-dump::placeholder{color:var(--ink-faint);font-style:italic;}
+.support-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;}
+.support-input{width:100%;padding:12px 16px;background:var(--parchment);border:1.5px solid var(--border);border-radius:10px;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--ink-mid);outline:none;transition:border-color 0.2s;}
+.support-input:focus{border-color:var(--gold);}
+.support-input::placeholder{color:var(--ink-faint);font-style:italic;}
+.support-label{font-size:8.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;margin-bottom:6px;display:block;}
+.file-upload-area{border:1.5px dashed var(--border-gold);border-radius:10px;padding:16px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--parchment);}
+.file-upload-area:hover{background:var(--gold-pale);border-color:var(--gold);}
+.file-upload-area.has-file{background:var(--gold-pale);border-color:var(--gold);border-style:solid;}
+.file-upload-text{font-family:'Cormorant Garamond',serif;font-size:14px;font-style:italic;color:var(--ink-soft);}
+.file-upload-text strong{font-style:normal;color:var(--gold-deep);}
+.output-picker{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:4px;}
+.output-check{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--parchment);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all 0.2s;user-select:none;}
+.output-check:hover{border-color:var(--gold);background:var(--gold-pale);}
+.output-check.checked{border-color:var(--gold);background:var(--gold-pale);}
+.check-dot{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--border-gold);background:white;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;transition:all 0.2s;}
+.output-check.checked .check-dot{background:var(--gold);border-color:var(--gold-deep);color:white;}
+.check-label{font-family:'Cormorant Garamond',serif;font-size:15px;font-style:italic;color:var(--ink-mid);line-height:1.2;}
+.check-sublabel{font-family:'Jost',sans-serif;font-size:8px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-faint);margin-top:2px;}
+.generate-wrap{text-align:center;margin:28px 0 8px;}
+.generate-btn{display:inline-flex;align-items:center;gap:12px;padding:18px 48px;background:linear-gradient(135deg,var(--gold) 0%,var(--gold-deep) 100%);color:white;border:none;border-radius:999px;font-family:'Jost',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.24em;text-transform:uppercase;cursor:pointer;transition:all 0.3s ease;box-shadow:0 6px 24px rgba(160,120,48,0.35);}
+.generate-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 32px rgba(160,120,48,0.45);}
+.generate-btn:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.generate-btn .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;display:none;}
+.generate-btn.loading .spinner{display:block;}
+.generate-btn.loading .btn-icon{display:none;}
+.outputs-section{margin-top:32px;}
+.outputs-header{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;font-style:italic;color:var(--ink);margin-bottom:20px;text-align:center;}
+.outputs-header em{font-style:normal;color:var(--gold-deep);}
+.output-card{background:white;border:1px solid var(--border);border-radius:14px;margin-bottom:16px;overflow:hidden;box-shadow:0 2px 12px var(--shadow);animation:fadeUp 0.4s ease forwards;opacity:0;}
+.output-card.visible{opacity:1;}
+.output-header{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);}
+.output-header-left{display:flex;align-items:center;gap:12px;}
+.output-icon{font-size:18px;}
+.output-platform{font-family:'Jost',sans-serif;font-size:10px;font-weight:500;letter-spacing:0.2em;text-transform:uppercase;color:var(--ink-soft);}
+.output-desc{font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-faint);}
+.output-card.dark-output .output-header{background:var(--navy);border-bottom-color:rgba(201,168,76,0.2);}
+.output-card.dark-output .output-platform{color:var(--gold-light);}
+.output-card.dark-output .output-desc{color:rgba(245,240,232,0.4);}
+.copy-btn{padding:6px 16px;background:var(--gold-pale);border:1px solid var(--border-gold);border-radius:999px;font-family:'Jost',sans-serif;font-size:8.5px;font-weight:500;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold-deep);cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.copy-btn:hover{background:var(--gold);color:white;border-color:var(--gold);}
+.copy-btn.copied{background:var(--forest);color:white;border-color:var(--forest);}
+.output-card.dark-output .copy-btn{background:rgba(201,168,76,0.15);color:var(--gold-light);border-color:rgba(201,168,76,0.3);}
+.output-card.dark-output .copy-btn:hover{background:var(--gold);color:white;}
+.output-body{padding:20px 22px;font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--ink-mid);line-height:1.85;white-space:pre-wrap;min-height:60px;}
+.output-card.dark-output .output-body{background:var(--cloak);color:rgba(245,240,232,0.78);}
+.streaming-cursor{display:inline-block;width:2px;height:18px;background:var(--gold);vertical-align:middle;margin-left:2px;animation:shimmer 0.8s ease-in-out infinite;}
+.shorts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;padding:16px 20px;}
+.short-card{background:var(--parchment);border:1px solid var(--border-gold);border-radius:10px;padding:14px 16px;font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--ink-mid);line-height:1.65;}
+.short-num{font-size:8px;letter-spacing:0.22em;text-transform:uppercase;color:var(--gold-deep);font-weight:500;margin-bottom:6px;font-family:'Jost',sans-serif;}
+.empty-state{text-align:center;padding:60px 28px;}
+.empty-lantern{margin:0 auto 20px;width:60px;opacity:0.3;}
+.empty-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-style:italic;color:var(--ink-soft);margin-bottom:8px;}
+.empty-sub{font-size:13px;color:var(--ink-faint);}
+.divider{height:1px;background:linear-gradient(90deg,transparent,var(--border-gold),transparent);margin:24px 0;}
+@media(max-width:600px){
+  .site-header{padding:14px 18px;}
+  main{padding:24px 16px 60px;}
+  .support-row{grid-template-columns:1fr;}
+  .type-grid{grid-template-columns:repeat(3,1fr);}
+  .selector-row{grid-template-columns:1fr;}
+  .mode-tabs{gap:3px;}
+  .mode-tab{font-size:8px;padding:8px 10px;}
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-left">
+    <svg class="header-lantern" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+      <line x1="60" y1="0" x2="60" y2="18" stroke="#C9A84C" stroke-width="1.5" opacity="0.7"/>
+      <circle cx="60" cy="20" r="3" fill="none" stroke="#C9A84C" stroke-width="1.5" opacity="0.7"/>
+      <path d="M40 28 Q60 18 80 28 L76 38 Q60 30 44 38 Z" fill="#8B7340" opacity="0.9"/>
+      <path d="M44 38 L76 38 L74 42 L46 42 Z" fill="#A08840" opacity="0.8"/>
+      <rect x="38" y="42" width="44" height="90" rx="3" fill="rgba(8,16,30,0.85)" stroke="#C9A84C" stroke-width="1.2" opacity="0.9"/>
+      <line x1="60" y1="42" x2="60" y2="132" stroke="#C9A84C" stroke-width="0.8" opacity="0.5"/>
+      <line x1="38" y1="87" x2="82" y2="87" stroke="#C9A84C" stroke-width="0.8" opacity="0.38"/>
+      <ellipse class="lantern-glow" cx="60" cy="92" rx="13" ry="16" fill="rgba(255,100,10,0.2)"/>
+      <g class="flame-body">
+        <path d="M60 110 C52 106 50 98 53 90 C55 84 58 82 60 76 C62 82 65 84 67 90 C70 98 68 106 60 110Z" fill="url(#hfg)"/>
+        <ellipse cx="60" cy="101" rx="3.5" ry="5" fill="rgba(255,240,200,0.92)"/>
+      </g>
+      <rect x="56" y="110" width="8" height="9" rx="1" fill="#D4B896" opacity="0.8"/>
+      <path d="M36 132 L84 132 L88 140 L32 140 Z" fill="#8B7340" opacity="0.8"/>
+      <rect x="30" y="140" width="60" height="6" rx="2" fill="#A08840" opacity="0.7"/>
+      <defs>
+        <linearGradient id="hfg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#FFF5C0"/>
+          <stop offset="35%" stop-color="#FF8C00" stop-opacity=".95"/>
+          <stop offset="100%" stop-color="#8B1A00" stop-opacity=".8"/>
+        </linearGradient>
+      </defs>
+    </svg>
+    <div class="header-titles">
+      <div class="header-eyebrow">Soul Growth Studio · Private · v8</div>
+      <div class="header-name">Content <em>Studio</em></div>
+    </div>
+  </div>
+  <div class="header-badge">🕯️ Language Bank Powered</div>
+</header>
+
+<main>
+
+  <div style="margin-bottom:28px;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;font-style:italic;color:var(--ink);margin-bottom:4px;">What are we <em>making today?</em></div>
+    <div style="font-size:12px;color:var(--ink-soft);font-family:'Cormorant Garamond',serif;font-style:italic;">Full ecosystem language bank installed. All registers. All personas. Every content type.</div>
+  </div>
+
+  <div class="mode-tabs" id="modeTabs">
+    <button class="mode-tab active" data-mode="community" onclick="switchMode('community',this)">🌿 Community</button>
+    <button class="mode-tab" data-mode="video" onclick="switchMode('video',this)">📺 Video</button>
+    <button class="mode-tab" data-mode="email" onclick="switchMode('email',this)">📩 Email</button>
+    <button class="mode-tab" data-mode="ads" onclick="switchMode('ads',this)">🎯 Ads</button>
+    <button class="mode-tab" data-mode="foundation" onclick="switchMode('foundation',this)">🕯️ Foundation</button>
+    <button class="mode-tab" data-mode="challenge" onclick="switchMode('challenge',this)">✨ Challenge</button>
+  </div>
+
+  <div class="step-section">
+    <div class="step-label">Step 1</div>
+    <div class="step-title">What kind of content is this?</div>
+    <div class="type-grid" id="typeGrid"></div>
+  </div>
+
+  <div id="quoteModePanel" style="display:none;" class="step-section">
+    <div class="step-label">Quote Details</div>
+    <div class="step-title">Paste your quote</div>
+    <textarea class="brain-dump" id="quoteText" style="min-height:90px;font-size:20px;font-style:italic;" placeholder="Paste the quote here..."></textarea>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px;">
+      <div><label class="support-label">Who said it</label><input type="text" class="support-input" id="quoteAuthor" placeholder="Jon Kabat-Zinn, Candace Pert..."/></div>
+      <div><label class="support-label">Source (optional)</label><input type="text" class="support-input" id="quoteSource" placeholder="Full Catastrophe Living..."/></div>
+    </div>
+    <div style="margin-top:14px;"><label class="support-label">What does this mean to you? (optional)</label><input type="text" class="support-input" id="quoteReaction" placeholder="this landed · felt this today · reminds me of..."/></div>
+  </div>
+
+  <div class="step-section" id="seriesStep">
+    <div class="step-label">Step 2</div>
+    <div class="step-title" id="seriesTitle">Which series or context?</div>
+    <div class="series-toggle" id="seriesToggle"></div>
+  </div>
+
+  <div class="step-section">
+    <div class="step-label">Step 3</div>
+    <div class="step-title">Who are you speaking to?</div>
+    <div class="step-subtitle">Pulls the right voice of customer language from the bank automatically.</div>
+    <div class="selector-row">
+      <div class="selector-group">
+        <label>Persona</label>
+        <select class="selector-select" id="personaSelect">
+          <option value="all">All personas — universal</option>
+          <option value="wired">The Wired-But-Tired Achiever</option>
+          <option value="plateau">The Post-Therapy Plateau Seeker</option>
+          <option value="depth">The Mindfulness Depth Seeker</option>
+          <option value="midlife">The Midlife Reawakening Woman</option>
+          <option value="anxiety">The Chronic Anxiety Carrier</option>
+        </select>
+      </div>
+      <div class="selector-group">
+        <label>Language Register</label>
+        <select class="selector-select" id="registerSelect">
+          <option value="auto">Auto — let the content type decide</option>
+          <option value="teaching">Teaching — explains and orients</option>
+          <option value="recognition">Recognition — "that's me" response</option>
+          <option value="safety">Safety — permission and orientation</option>
+          <option value="invitation">Invitation — soft CTA energy</option>
+          <option value="induction">Induction — practice/ritual only</option>
+          <option value="inquiry">Reflective Inquiry — questions that open</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-section">
+    <div class="step-label">Step 4</div>
+    <div class="step-title">Brain dump — say everything. Don't polish.</div>
+    <textarea class="brain-dump" id="brainDump" placeholder="Just talk. Stream of consciousness. What are you thinking about, feeling, noticing, wanting to say? The messier the better. This is where the real content lives...&#10;&#10;In Quote Mode — this field is optional."></textarea>
+  </div>
+
+  <div class="step-section">
+    <div class="step-label">Step 5 · Optional</div>
+    <div class="step-title">Supporting material</div>
+    <div class="support-row">
+      <div>
+        <label class="support-label">Paste text — research, quotes, sky report, notes</label>
+        <textarea class="support-input brain-dump" id="supportText" style="min-height:100px;font-size:15px;" placeholder="Sky report notes, research, a quote you love, any context..."></textarea>
+      </div>
+      <div>
+        <label class="support-label">Paste a URL to reference</label>
+        <input type="url" class="support-input" id="supportUrl" placeholder="https://..." style="margin-bottom:12px;"/>
+        <label class="support-label">Upload a document</label>
+        <div class="file-upload-area" onclick="document.getElementById('fileInput').click()" id="fileArea">
+          <input type="file" id="fileInput" accept=".txt,.md,.doc,.docx,.pdf" style="display:none" onchange="handleFile(this)"/>
+          <div class="file-upload-text" id="fileText"><strong>Click to upload</strong> — txt, doc, pdf</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="step-section" id="outputPickerSection">
+    <div class="step-label">Step 6</div>
+    <div class="step-title">Choose what to generate</div>
+    <div class="output-picker" id="outputPicker"></div>
+  </div>
+
+  <div class="generate-wrap">
+    <button class="generate-btn" id="generateBtn" onclick="generate()">
+      <span class="spinner"></span>
+      <span class="btn-icon">✦</span>
+      <span id="btnLabel">Generate My Content</span>
+    </button>
+  </div>
+  <p style="text-align:center;font-family:'Cormorant Garamond',serif;font-size:13px;font-style:italic;color:var(--ink-faint);margin-top:8px;">Your voice · Every time · Language bank powered 🕯️</p>
+
+  <div class="divider"></div>
+
+  <div class="outputs-section" id="outputsSection">
+    <div class="empty-state" id="emptyState">
+      <svg class="empty-lantern" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+        <rect x="38" y="42" width="44" height="90" rx="3" fill="rgba(44,36,22,0.1)" stroke="rgba(201,168,76,0.3)" stroke-width="1.2"/>
+        <line x1="38" y1="87" x2="82" y2="87" stroke="rgba(201,168,76,0.2)" stroke-width="0.8"/>
+        <ellipse cx="60" cy="92" rx="10" ry="12" fill="rgba(201,168,76,0.08)"/>
+      </svg>
+      <div class="empty-title">Your content is waiting to be made.</div>
+      <div class="empty-sub">Choose your mode, fill in your brain dump, and press generate.</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+let selectedType='',selectedSeries='',selectedOutputs=new Set(),uploadedFileText='',currentMode='community';
+
+const modes={
+  community:{
+    types:[{id:'Mirror',icon:'🪞',name:'Mirror'},{id:'Teaching Moment',icon:'📖',name:'Teaching Moment'},{id:'Story Moment',icon:'🕯️',name:'Story Moment'},{id:'Practice Nudge',icon:'🌿',name:'Practice Nudge'},{id:'Reflection Question',icon:'💭',name:'Reflection Question'},{id:'GEMS Transmission',icon:'🌍',name:'GEMS'},{id:'Quote Mode',icon:'💬',name:'Quote Mode'},{id:'Midday Pause',icon:'☀️',name:'Midday Pause'}],
+    series:[{id:'CEO Series',label:'📺 CEO Series'},{id:'Behind the Lantern',label:'🕯️ Behind the Lantern'},{id:'GEMS',label:'🌍 GEMS'},{id:'Return to Stillness',label:'🌊 Return to Stillness'}],
+    seriesTitle:'Which series?',
+    outputs:[{id:'sgc',icon:'🌿',platform:'SGC Community Post',desc:'Soul Growth Circle',dark:false,def:true},{id:'facebook',icon:'📘',platform:'Facebook Post',desc:'Personal connection',dark:false,def:false},{id:'community',icon:'🤝',platform:'Business Community',desc:'Sisterhood, Classified',dark:false,def:false},{id:'shorts',icon:'🎬',platform:'5 Shorts Scripts',desc:'YouTube Shorts & Reels',dark:true,def:false}]
+  },
+  video:{
+    types:[{id:'CEO Series Video',icon:'📺',name:'CEO Series'},{id:'Behind the Lantern Video',icon:'🕯️',name:'Behind the Lantern'},{id:'YouTube Intro',icon:'🎬',name:'YouTube Intro'},{id:'YouTube Short',icon:'⚡',name:'Shorts Script'},{id:'GEMS Video',icon:'🌍',name:'GEMS Video'},{id:'Practice Opening',icon:'🌊',name:'Practice Opening'}],
+    series:[{id:'CEO Series',label:'📺 CEO Series'},{id:'Behind the Lantern',label:'🕯️ Behind the Lantern'},{id:'GEMS',label:'🌍 GEMS'}],
+    seriesTitle:'Which series?',
+    outputs:[{id:'youtube',icon:'📺',platform:'YouTube Script',desc:'Full script with hook, body, CTA',dark:false,def:true},{id:'youtubedesc',icon:'📝',platform:'YouTube Description',desc:'SEO description',dark:false,def:false},{id:'shorts',icon:'🎬',platform:'5 Shorts Scripts',desc:'Cut-down versions',dark:true,def:false},{id:'sgc',icon:'🌿',platform:'SGC Companion Post',desc:'Community companion',dark:false,def:false}]
+  },
+  email:{
+    types:[{id:'Onboarding Email',icon:'🚪',name:'Onboarding'},{id:'Nurture Email',icon:'💌',name:'Nurture'},{id:'Welcome Email',icon:'🕯️',name:'Welcome'},{id:'Re-engagement Email',icon:'🌿',name:'Re-engagement'},{id:'Launch Email',icon:'✨',name:'Launch'},{id:'Substack Essay',icon:'✍️',name:'Substack'}],
+    series:[{id:'New Member Onboarding',label:'🚪 New Member Onboarding'},{id:'Return to Stillness Journey',label:'🌊 Return to Stillness'},{id:'Premium Upgrade',label:'✨ Premium / Dojo'},{id:'General Nurture',label:'💌 General Nurture'}],
+    seriesTitle:'Which sequence?',
+    outputs:[{id:'email',icon:'📩',platform:'Email',desc:'Subject line + full body',dark:false,def:true},{id:'substack',icon:'✍️',platform:'Substack Essay',desc:'500–800 word essay',dark:false,def:false},{id:'sgc',icon:'🌿',platform:'SGC Companion Post',desc:'Community version',dark:false,def:false}]
+  },
+  ads:{
+    types:[{id:'Cold Traffic Ad',icon:'🎯',name:'Cold Traffic'},{id:'Warm Traffic Ad',icon:'🔥',name:'Warm Traffic'},{id:'Raise Your Hand Ad',icon:'🙋',name:'Raise Your Hand'},{id:'Hook Bank',icon:'⚡',name:'Hook Bank'},{id:'Video Ad Script',icon:'🎬',name:'Video Ad'},{id:'Retargeting Ad',icon:'↩️',name:'Retargeting'}],
+    series:[{id:'SGC Registration',label:'🌿 SGC Registration'},{id:'Return to Stillness',label:'🌊 Return to Stillness'},{id:'Calm Anchor Reset',label:'⚓ Calm Anchor Reset'},{id:'Premium Upgrade',label:'✨ Dojo Upgrade'}],
+    seriesTitle:'What are we driving traffic to?',
+    outputs:[{id:'adprimary',icon:'🎯',platform:'Primary Ad Copy',desc:'Compliance language throughout',dark:false,def:true},{id:'adhooks',icon:'⚡',platform:'5 Hook Variations',desc:'Different angles for testing',dark:false,def:true},{id:'adcta',icon:'🚪',platform:'3 CTA Variations',desc:'Options for testing',dark:false,def:false},{id:'adshorts',icon:'🎬',platform:'Video Ad Script',desc:'15–30 second script',dark:true,def:false}]
+  },
+  foundation:{
+    types:[{id:'Pre-Talk Section',icon:'🕯️',name:'Pre-Talk'},{id:'About Page Copy',icon:'🪞',name:'About Page'},{id:'Onboarding Orientation',icon:'🚪',name:'Onboarding'},{id:'Calm Anchor Reset Copy',icon:'⚓',name:'Calm Anchor'},{id:'Practice Introduction',icon:'🌊',name:'Practice Intro'},{id:'Classroom Container Copy',icon:'📚',name:'Classroom Copy'}],
+    series:[{id:'Pre-Talk Foundation',label:'🕯️ Foundational Pre-Talk'},{id:'Return to Stillness',label:'🌊 Return to Stillness'},{id:'Soul Growth Circle Orientation',label:'🌿 SGC Orientation'},{id:'Mindful Heart Dojo',label:'✨ Mindful Heart Dojo'}],
+    seriesTitle:'Which product or container?',
+    outputs:[{id:'foundationprimary',icon:'🕯️',platform:'Primary Copy',desc:'Full written piece',dark:false,def:true},{id:'foundationshort',icon:'✂️',platform:'Short Version',desc:'Condensed for onboarding',dark:false,def:false},{id:'foundationscript',icon:'🎬',platform:'Spoken Script Notes',desc:'Pacing notes for audio/video',dark:false,def:false},{id:'sgc',icon:'🌿',platform:'SGC Intro Post',desc:'Community intro version',dark:false,def:false}]
+  },
+  challenge:{
+    types:[{id:'Challenge Day Post',icon:'📅',name:'Day Post'},{id:'Challenge Opener',icon:'🚀',name:'Opener'},{id:'Challenge Closing Night',icon:'🎉',name:'Closing Night'},{id:'Challenge Check-in',icon:'💭',name:'Check-in'},{id:'Challenge Big Reveal',icon:'✨',name:'Big Reveal'},{id:'Challenge Email',icon:'📩',name:'Challenge Email'}],
+    series:[{id:'28-Day Morning Evening Return',label:'🌅 28-Day Morning & Evening Return'},{id:'Return to Stillness Challenge',label:'🌊 Return to Stillness Challenge'},{id:'Custom Challenge',label:'✨ Custom Challenge'}],
+    seriesTitle:'Which challenge?',
+    outputs:[{id:'sgc',icon:'🌿',platform:'SGC Community Post',desc:'Main challenge post',dark:false,def:true},{id:'email',icon:'📩',platform:'Challenge Email',desc:'Accompanying email',dark:false,def:false},{id:'facebook',icon:'📘',platform:'Facebook Post',desc:'External amplification',dark:false,def:false},{id:'shorts',icon:'🎬',platform:'Shorts Scripts',desc:'Challenge momentum clips',dark:true,def:false}]
+  }
+};
+
+const allDefs={
+  sgc:{icon:'🌿',platform:'SGC Community Post',desc:'Soul Growth Circle',dark:false},
+  facebook:{icon:'📘',platform:'Facebook Post',desc:'Personal connection',dark:false},
+  community:{icon:'🤝',platform:'Business Community Post',desc:'Sisterhood, Classified',dark:false},
+  email:{icon:'📩',platform:'Email',desc:'Subject + body',dark:false},
+  substack:{icon:'✍️',platform:'Substack Essay',desc:'500–800 word essay',dark:false},
+  youtube:{icon:'📺',platform:'YouTube Script',desc:'Full script',dark:false},
+  youtubedesc:{icon:'📝',platform:'YouTube Description',desc:'SEO description',dark:false},
+  shorts:{icon:'🎬',platform:'5 Shorts Scripts',desc:'YouTube Shorts',dark:true},
+  adprimary:{icon:'🎯',platform:'Primary Ad Copy',desc:'Compliance language',dark:false},
+  adhooks:{icon:'⚡',platform:'5 Hook Variations',desc:'Testing angles',dark:false},
+  adcta:{icon:'🚪',platform:'3 CTA Variations',desc:'CTA options',dark:false},
+  adshorts:{icon:'🎬',platform:'Video Ad Script',desc:'15–30 sec script',dark:true},
+  foundationprimary:{icon:'🕯️',platform:'Primary Copy',desc:'Full written piece',dark:false},
+  foundationshort:{icon:'✂️',platform:'Short Version',desc:'Condensed',dark:false},
+  foundationscript:{icon:'🎬',platform:'Spoken Script Notes',desc:'Delivery notes',dark:false},
+};
+
+const personaCtx={
+  all:'',
+  wired:'PERSONA: The Wired-But-Tired Achiever. High-functioning professional woman, 38-56, appears fine from outside but cannot turn off. Identifies as Type A, a worrier, a caretaker. Tries to problem-solve her way through healing. Key VOC: "I have tried everything. What am I missing?" "I know exactly why I am anxious but my body still reacts the same way." Use: nervous system working overtime, nothing sticks language, the off switch metaphor.',
+  plateau:'PERSONA: The Post-Therapy Plateau Seeker. Done years of therapy, knows herself intellectually but body has not caught up. Sophisticated, ready for the somatic piece. Key frustration: "Therapy gave me insight but my body will not shift." "The gap between knowing and feeling exhausts me." Use: embodiment language, integration language.',
+  depth:'PERSONA: The Mindfulness Depth Seeker. Already practicing, uses apps, reads books, but skating on the surface. Wants real teacher, real depth. Desire-based. Key VOC: "I need something that goes deeper." Use: depth language, real transmission language.',
+  midlife:'PERSONA: The Midlife Reawakening Woman. In transition — empty nest, career shift, loss. Seeking to come home to herself. The word return stops her cold. Key VOC: "Who am I beyond these roles?" "I have everything and it feels like nothing." Use: return language, coming home language.',
+  anxiety:'PERSONA: The Chronic Anxiety Carrier. Has lived with low-grade anxiety her entire life. Functional but never fully calm. Key VOC: "I have been like this my whole life. I have stopped believing it can change." "Safe is not something I do. Safe is something that happens to other people." Use: restoration of hope, "your body is not broken, it learned this."'
+};
+
+const registerCtx={
+  auto:'',
+  teaching:'REGISTER: Teaching language. Explains concepts, orients to methodology. Intelligent but not clinical, not abstract. Grounded in lived experience.',
+  recognition:'REGISTER: Recognition language. Primary goal is "oh my God that is me" response. Use their exact words. Mirror their inner experience before offering anything.',
+  safety:'REGISTER: Safety and permission language. Establishes relational safety before anything else. Nothing is required. Nothing can go wrong. You remain in choice.',
+  invitation:'REGISTER: Invitation language. Soft CTA energy. Opens a door, never pushes through it. Warm, unhurried, no urgency.',
+  induction:'REGISTER: Induction/ritual language. Creates attentional and somatic shifts. Narrowing attention inward. Softening effort. Use ONLY for practice openings — never teaching, ads, or casual posts.',
+  inquiry:'REGISTER: Reflective inquiry language. Questions that open rather than demand. Invites internal listening. What does your body carry? What would it feel like to stop managing for a moment?'
+};
+
+const BANK=`=== SOUL GROWTH STUDIO LANGUAGE BANK ===
+PHILOSOPHY: This work is not about managing stress — translating it. Not about achieving inner peace — learning to return to yourself so reliably the peace is already there waiting. The return itself is the change. Regulation is not perfection. Regulation is return. Safety before speed. Awareness becomes architecture. Calm is a trained return. This work is listening-based, not control-based. Collaborative, not controlling.
+
+STILLNESS (use precisely — most misunderstood word):
+IS: the quieter place beneath noise, pressure, constant internal management. The part still there beneath overthinking, rehearsing, worrying, fixing, holding everything together. What becomes accessible when effort softens. Not the absence of experience — the absence of forcing. Deliberate non-interference. What remains when override ceases.
+IS NOT: blank mind, perfect calm, transcendence, emotional blankness, immobility, suppression.
+PROCESS: softening pressure, management, override, constant effort.
+
+MINDFULNESS HERE: not about achieving a calm state. Not emptying the mind. The practice of staying with what is actually happening without immediately trying to control, fix, judge, or escape it. Relational rather than performative. Awareness alone can begin changing the relationship.
+
+REFLECTIVE SELF-HYPNOSIS: focused aware attention — not losing control, not going unconscious. What becomes possible when outside world softens enough to finally hear yourself differently. Not hypnosis to override — hypnosis to listen. "I teach you how to recognize and work with states of focused attention you already experience naturally so you can return to yourself intentionally." You remain aware, in choice, can pause at any time.
+NORMALIZATION: You already know these states — driving past your exit, lost in a book, losing track of time. This is not foreign to you.
+
+NERVOUS SYSTEM: responds to conditions not instructions. Cannot talk yourself into feeling safe. Trying harder is often the very thing keeping you stuck. The urgency to fix yourself keeps the system on guard. When anxious — nervous system working. Cannot relax — nervous system working. None of it is malfunction or weakness.
+
+THEIR INNER WORLD (name this exactly): the constant checking. The low hum of worry you cannot quite name. The rehearsing of conversations that have not happened yet. The replaying of ones that have. The feeling of holding everything together while something wonders how much longer you can keep doing it. The overthinking that keeps going at 2am.
+
+THEIR ACTUAL QUESTIONS: Why cannot I just calm down? Why is my brain always running? Why am I exhausted when I have not even done anything? I have tried everything — what am I missing?
+
+THEIR HIDDEN FEARS: I am bad at meditation. I am too anxious for this. I am the exception — this will not work for me. I am broken. I have stopped believing it can change.
+
+HOPE ANCHORS (appear early and repeat): You are not the exception. You are exactly who this work was built for. You are not broken. Nothing is wrong with you. You do not need to already be good at this. Many people arrive believing they are bad at meditation — most discover the opposite. If you have tried to think your way out of this and nothing has worked for long, you are not failing. You may simply have never been taught how to work with your nervous system instead of against it.
+
+PERMISSION: Nothing is required of you right now. You may pause or stop at any time. Nothing here is done to you. There is no correct experience. You cannot do this wrong.
+
+TRANSFORMATION (subtle — never overclaim):
+NOT: massive breakthrough, become your highest self, total transformation.
+YES: less bracing in the body. More space between them and the noise in their mind. A quieter relationship with pressure. The ability to pause without guilt. Moments of stillness that linger longer. A gentler way of moving through everyday life. Less urgency. More steadiness. Feeling safer inside yourself. Responding instead of reacting.
+
+VOC FROM RESEARCH: "I have been like this my whole life. I have stopped believing it can change." "I know how to manage it. I am tired of managing. I want it to stop." "My body does not know it is safe. I do not know how to tell it." "I want to feel safe in my own body." "I want calm that does not require effort." "I want to stop white-knuckling everything."
+
+PROTECTED PHRASES (never paraphrase):
+- "Seat. Feet. Ground. Begin. 🔔" — practice openings ONLY, never ads or casual content
+- "Get beneath the busyness of your mind and into the wisdom of your body" — about page/community ONLY, NEVER in ads
+- "Your body is waiting for you. 🕯️" — approved for ads only
+- "The return itself is the change" — use sparingly
+- "We don't manage stress here. We translate it" — never paraphrase
+- "The door is open. 🕯️" — external content close
+- "Your Return to Stillness is waiting for you. 🕯️" — inside community close
+- "Not easy. Simple." — never paraphrase
+- "This work doesn't fight you. It works with you." — never paraphrase
+- "The trying itself becomes exhausting. The trying becomes part of the noise." — never paraphrase
+- "Your body already knows the way back." — never paraphrase
+
+AD COMPLIANCE (use for all ad content):
+USE: "the nervous system/the body/the human system" NOT "your body". "tension/pressure/daily strain" NOT "stress". "ease/steady state/inner quiet" NOT "calm". "explore/recognize/notice" NOT "learn". "integration/regulation/restoration" NOT "heal"
+NEVER in ads: "get beneath the busyness of your mind and into the wisdom of your body"
+
+LOGLINES:
+Primary: "This practice helps the nervous system soften so the mind can quiet, the body can settle, and real change can finally begin. I'm Tina. I've spent 25 years helping overwhelmed people who are exhausted from overthinking and constant internal pressure find the quieter place beneath the noise."
+About opener: "Your mind has been running the show for a long time. And you're tired. Not just tired of the noise. Tired of trying to fix it alone. There's a quieter place inside you that has been there the whole time. We find it here. I guide you there."
+SKOOL: "Your mind understands why you feel this way. Your body still hasn't gotten the message. I'll show you the place where that changes, and teach you the pathway back so you can return there on your own."
+
+NEVER USE: em dashes, bullet points in community/social posts, safe space, hack, crush it, boss babe, level up, manifest faster, high vibe only, unlock your potential, step into your highest self, transformation journey, guided meditation tone in non-practice content, short punchy fragments for dramatic effect.
+=== END BANK ===`;
+
+function switchMode(mode,btn){
+  currentMode=mode;
+  document.querySelectorAll('.mode-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedType='';selectedSeries='';selectedOutputs=new Set();
+  buildTypeGrid();buildSeriesToggle();buildOutputPicker();
+  document.getElementById('quoteModePanel').style.display='none';
+}
+
+function buildTypeGrid(){
+  const g=document.getElementById('typeGrid');
+  g.innerHTML='';
+  modes[currentMode].types.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='type-btn';b.setAttribute('data-type',t.id);
+    b.innerHTML=`<span class="type-icon">${t.icon}</span><span class="type-name">${t.name}</span>`;
+    b.onclick=()=>selectType(b,t.id);
+    g.appendChild(b);
+  });
+}
+
+function buildSeriesToggle(){
+  const t=document.getElementById('seriesToggle');
+  const m=modes[currentMode];
+  t.innerHTML='';
+  document.getElementById('seriesTitle').textContent=m.seriesTitle;
+  m.series.forEach(s=>{
+    const b=document.createElement('button');
+    b.className='series-btn';b.setAttribute('data-series',s.id);
+    b.textContent=s.label;b.onclick=()=>selectSeries(b);
+    t.appendChild(b);
+  });
+}
+
+function buildOutputPicker(){
+  const p=document.getElementById('outputPicker');
+  p.innerHTML='';selectedOutputs=new Set();
+  modes[currentMode].outputs.forEach(o=>{
+    if(o.def)selectedOutputs.add(o.id);
+    const d=document.createElement('div');
+    d.className=`output-check${o.def?' checked':''}`;d.setAttribute('data-id',o.id);
+    d.innerHTML=`<div class="check-dot">${o.def?'✓':''}</div><div><div class="check-label">${o.platform}</div><div class="check-sublabel">${o.desc}</div></div>`;
+    d.onclick=()=>toggleCheck(d);
+    p.appendChild(d);
+  });
+}
+
+function selectType(btn,id){
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');selectedType=id;
+  if(id==='Quote Mode'){document.getElementById('quoteModePanel').style.display='block';document.getElementById('quoteModePanel').scrollIntoView({behavior:'smooth',block:'start'});}
+  else document.getElementById('quoteModePanel').style.display='none';
+  if(id==='GEMS Transmission'||id==='GEMS Video'){
+    document.querySelectorAll('.series-btn').forEach(b=>{const g=b.getAttribute('data-series')==='GEMS';b.classList.toggle('selected',g);if(g)selectedSeries='GEMS';});
+  }
+}
+
+function selectSeries(btn){
+  document.querySelectorAll('.series-btn').forEach(b=>b.classList.remove('selected'));
+  btn.classList.add('selected');selectedSeries=btn.getAttribute('data-series');
+}
+
+function toggleCheck(div){
+  const id=div.getAttribute('data-id');const dot=div.querySelector('.check-dot');
+  if(selectedOutputs.has(id)){selectedOutputs.delete(id);div.classList.remove('checked');dot.textContent='';}
+  else{selectedOutputs.add(id);div.classList.add('checked');dot.textContent='✓';}
+}
+
+function handleFile(input){
+  const file=input.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{uploadedFileText=e.target.result;document.getElementById('fileText').innerHTML=`<strong>${file.name}</strong> uploaded ✓`;document.getElementById('fileArea').classList.add('has-file');};
+  r.readAsText(file);
+}
+
+function copyText(id,btn){
+  const el=document.getElementById(id);const text=el.innerText||el.textContent;
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='✓ Copied';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);});
+}
+
+function buildSystemPrompt(){
+  const persona=document.getElementById('personaSelect').value;
+  const register=document.getElementById('registerSelect').value;
+  return `You are Tina Shafer's personal content writing assistant. You write exclusively in Tina's voice — warm, grounded, somatic, occasionally mischievous, deeply human.
+
+${BANK}
+
+TINA'S VOICE: Warm but not saccharine. Grounded but not clinical. Speaks from lived experience. Never uses em dashes. Never says genuinely, honestly, or straightforward. The Lantern Holder archetype. Scientific foundation: Candace Pert, polyvagal theory, nervous system safety, subconscious mind in every cell. Her mind is the CEO concept: "Your mind thinks it's the CEO of your life. It runs around managing everything — pulling levers, sounding alarms — all with the very best of intentions. But it is not the whole story."
+
+METHODOLOGY: Dynamic System of Inner Change. Reflective Self-Hypnosis™. Body Dialogue Method™. Safety Anchor Reset™. Soul Growth Circle (free community). Return to Stillness (7-practice series). Mindful Heart Dojo (premium studio).
+
+SERIES: CEO Series — teaching content, one Tina-ism as hook, educational warm authoritative. Behind the Lantern — POV storytelling, real life as nervous system content, intimate grounded personal. GEMS — Grounded Earth Moving Sky, weekly sky transmission through nervous system lens, transmission not teaching, felt more than explained.
+
+${personaCtx[persona]?`PERSONA CONTEXT:\n${personaCtx[persona]}\n`:''}
+${registerCtx[register]?`${registerCtx[register]}\n`:''}
+CONTENT MODE: ${currentMode.toUpperCase()}
+CONTENT TYPE: ${selectedType}
+SERIES/CONTEXT: ${selectedSeries||'General'}
+
+PLATFORM RULES:
+- Community posts: conversational, warm, no bullet points, invite participation. End with when appropriate: "Your own return is waiting. Find your morning intention or evening reflection here: https://your-daily-return.netlify.app/"
+- Ads: MUST use compliance language. NEVER use "get beneath the busyness of your mind and into the wisdom of your body" in ads.
+- Foundation pieces: manifesto energy, intelligent, grounded, nervous-system regulating, 8th-10th grade emotional readability. The listener may already be slightly anxious so clarity and warmth matter more than sophisticated vocabulary.
+- Onboarding emails: establish safety before anything else. Remove fear before introducing methodology.
+- YouTube: cold open hook in THEIR lived experience (not Tina's credentials), teaching body, soft CTA. No throat-clearing.
+- Challenge posts: momentum and belonging energy. Community doing this together.
+- Pre-talk revisions: stay in the manifesto register. Never slip into guided meditation tone. Keep it grounded and speakable.
+- Calm Anchor Reset: practical, immediate, simple. Something they can do tonight.
+- All CTAs point to Soul Growth Circle — free to join.
+
+QUALITY CHECK: Does this feel like an exhale? Does it sound like Tina talking to one person at 11:47pm who really needs to hear this?
+
+Write everything in Tina's voice. The door is open. 🕯️`;
+}
+
+function buildUserPrompt(){
+  const brainDump=document.getElementById('brainDump').value.trim();
+  const supportText=document.getElementById('supportText').value.trim();
+  const supportUrl=document.getElementById('supportUrl').value.trim();
+  const quoteText=document.getElementById('quoteText')?.value.trim()||'';
+  const quoteAuthor=document.getElementById('quoteAuthor')?.value.trim()||'';
+  const quoteSource=document.getElementById('quoteSource')?.value.trim()||'';
+  const quoteReaction=document.getElementById('quoteReaction')?.value.trim()||'';
+
+  let quoteBlock='';
+  if(selectedType==='Quote Mode'&&quoteText){
+    quoteBlock=`QUOTE TO BUILD CONTENT AROUND:\n"${quoteText}"${quoteAuthor?`\n— ${quoteAuthor}`:''}${quoteSource?`, ${quoteSource}`:''}\n${quoteReaction?`TINA'S REACTION: ${quoteReaction}`:''}\n\nBuild all content around this quote. Weave it in naturally. Never lose Tina's voice.\n\n`;
+  }
+
+  const markerMap={
+    sgc:'=== SGC COMMUNITY POST ===\n(warm, conversational, no bullet points, invites participation)',
+    facebook:'=== FACEBOOK POST ===\n(leads with human moment, medium length)',
+    community:'=== BUSINESS COMMUNITY POST ===\n(opens with: "The world is moving faster than you can blink. But your nervous system hasn\'t changed at all.")',
+    email:'=== EMAIL ===\nSubject: (subject line)\n(if onboarding: establish safety before methodology)',
+    substack:'=== SUBSTACK ESSAY ===\n(500-800 words, reflective, essayistic, builds to one insight)',
+    youtube:'=== YOUTUBE SCRIPT ===\n(cold open in THEIR experience, teaching body, soft CTA)',
+    youtubedesc:'=== YOUTUBE DESCRIPTION ===\n(SEO-optimized, 150-200 words)',
+    shorts:'=== SHORTS SCRIPTS ===\n=== SHORT 1 ===\n=== SHORT 2 ===\n=== SHORT 3 ===\n=== SHORT 4 ===\n=== SHORT 5 ===',
+    adprimary:'=== PRIMARY AD COPY ===\n(compliance language — "the nervous system" not "your body" — lead with problem in their words)',
+    adhooks:'=== 5 HOOK VARIATIONS ===\n=== HOOK 1 (problem-aware) ===\n=== HOOK 2 (desire-based) ===\n=== HOOK 3 (raise your hand / identity) ===\n=== HOOK 4 (bold / disruptor) ===\n=== HOOK 5 (poetic / contemplative) ===',
+    adcta:'=== 3 CTA VARIATIONS ===\n=== CTA 1 ===\n=== CTA 2 ===\n=== CTA 3 ===',
+    adshorts:'=== VIDEO AD SCRIPT ===\n(15-30 second video ad — hook, body, CTA — compliance language)',
+    foundationprimary:'=== PRIMARY COPY ===\n(full written piece — manifesto energy, grounded, nervous-system regulating)',
+    foundationshort:'=== SHORT VERSION ===\n(condensed for onboarding — same voice, key points)',
+    foundationscript:'=== SPOKEN SCRIPT NOTES ===\n(pacing notes, where to slow down, emphasis points for audio/video delivery)',
+  };
+
+  const outputs=Array.from(selectedOutputs);
+  const outputInstructions=outputs.map(id=>markerMap[id]||`=== ${id.toUpperCase()} ===`).join('\n\n');
+
+  return `${quoteBlock}BRAIN DUMP:\n${brainDump||(quoteText?'(See quote above)':'(no brain dump provided)')}\n\n${supportText?`SUPPORTING MATERIAL:\n${supportText}\n\n`:''}${supportUrl?`REFERENCE URL: ${supportUrl}\n\n`:''}${uploadedFileText?`UPLOADED DOCUMENT:\n${uploadedFileText.slice(0,3000)}\n\n`:''}Generate ONLY these pieces using the EXACT markers:\n\n${outputInstructions}\n\nWrite everything in Tina's voice. Raw, warm, real. The door is open. 🕯️`;
+}
+
+function buildOutputCards(){
+  const section=document.getElementById('outputsSection');
+  section.innerHTML=`<h2 class="outputs-header">Your <em>Content</em> Is Being Written</h2>`;
+  Array.from(selectedOutputs).forEach(id=>{
+    const def=allDefs[id];if(!def)return;
+    const card=document.createElement('div');
+    card.className=`output-card${def.dark?' dark-output':''}`;card.id=`card-${id}`;
+    const isGrid=id==='shorts'||id==='adhooks';
+    card.innerHTML=`<div class="output-header"><div class="output-header-left"><span class="output-icon">${def.icon}</span><div><div class="output-platform">${def.platform}</div><div class="output-desc">${def.desc}</div></div></div><button class="copy-btn" onclick="copyText('body-${id}',this)">Copy</button></div>${isGrid?`<div class="shorts-grid" id="body-${id}"></div>`:`<div class="output-body" id="body-${id}"><span class="streaming-cursor"></span></div>`}`;
+    section.appendChild(card);
+    setTimeout(()=>card.classList.add('visible'),50);
+  });
+}
+
+function parseAndRender(fullText){
+  if(selectedOutputs.has('shorts')){
+    const el=document.getElementById('body-shorts');
+    if(el){
+      const m=fullText.match(/=== SHORTS SCRIPTS ===([\s\S]*?)(?====|$)/i);
+      if(m){
+        const scripts=m[1].split(/=== SHORT \d+ ===/i).filter(s=>s.trim());
+        el.innerHTML='';
+        scripts.forEach((s,i)=>{const d=document.createElement('div');d.className='short-card';d.innerHTML=`<div class="short-num">Short ${i+1}</div>${s.trim()}`;el.appendChild(d);});
+      }
+    }
+  }
+  if(selectedOutputs.has('adhooks')){
+    const el=document.getElementById('body-adhooks');
+    if(el){
+      const m=fullText.match(/=== 5 HOOK VARIATIONS ===([\s\S]*?)(?====|$)/i);
+      if(m){
+        const hooks=m[1].split(/=== HOOK \d+[^=]*===/i).filter(s=>s.trim());
+        el.innerHTML='';
+        hooks.forEach((h,i)=>{const d=document.createElement('div');d.className='short-card';d.innerHTML=`<div class="short-num">Hook ${i+1}</div>${h.trim()}`;el.appendChild(d);});
+      }
+    }
+  }
+  const markerKeys={sgc:'SGC COMMUNITY POST',facebook:'FACEBOOK POST',community:'BUSINESS COMMUNITY POST',email:'EMAIL',substack:'SUBSTACK ESSAY',youtube:'YOUTUBE SCRIPT',youtubedesc:'YOUTUBE DESCRIPTION',adprimary:'PRIMARY AD COPY',adcta:'3 CTA VARIATIONS',adshorts:'VIDEO AD SCRIPT',foundationprimary:'PRIMARY COPY',foundationshort:'SHORT VERSION',foundationscript:'SPOKEN SCRIPT NOTES'};
+  Array.from(selectedOutputs).forEach(id=>{
+    if(id==='shorts'||id==='adhooks')return;
+    const marker=markerKeys[id];if(!marker)return;
+    const el=document.getElementById(`body-${id}`);if(!el)return;
+    const rx=new RegExp(`=== ${marker} ===([\\s\\S]*?)(?====|$)`,'i');
+    const m=fullText.match(rx);
+    if(m){el.innerHTML='';el.textContent=m[1].trim();}
+  });
+}
+
+async function generate(){
+  const brainDump=document.getElementById('brainDump').value.trim();
+  const quoteText=document.getElementById('quoteText')?.value.trim()||'';
+  if(!brainDump&&selectedType!=='Quote Mode'){alert('Please add your brain dump in Step 4 before generating.');return;}
+  if(selectedType==='Quote Mode'&&!quoteText){alert('Please paste your quote before generating.');return;}
+  if(!selectedType){alert('Please select a content type in Step 1.');return;}
+  if(selectedOutputs.size===0){alert('Please select at least one output to generate.');return;}
+
+  const btn=document.getElementById('generateBtn');
+  btn.disabled=true;btn.classList.add('loading');
+  document.getElementById('btnLabel').textContent='Writing in your voice...';
+  document.getElementById('emptyState')?.remove();
+  buildOutputCards();
+
+  try{
+    const response=await fetch('/.netlify/functions/generate',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({system:buildSystemPrompt(),messages:[{role:'user',content:buildUserPrompt()}]})
+    });
+    const data=await response.json();
+    const fullText=data.content?.[0]?.text||'';
+    parseAndRender(fullText);
+  }catch(err){
+    document.getElementById('outputsSection').innerHTML=`<div style="text-align:center;padding:40px;color:var(--ink-soft);font-family:'Cormorant Garamond',serif;font-style:italic;">Something went quiet unexpectedly. Please try again. 🕯️</div>`;
+    console.error(err);
+  }finally{
+    btn.disabled=false;btn.classList.remove('loading');
+    document.getElementById('btnLabel').textContent='Generate My Content';
+  }
+}
+
+buildTypeGrid();buildSeriesToggle();buildOutputPicker();
+</script>
+
+<script src="https://static.app/js/static.js" type="text/javascript"></script>
+</body>
+</html>
